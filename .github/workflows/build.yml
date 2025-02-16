@@ -45,5 +45,5 @@ jobs:
         uses: /impaas/impaas-deploy@v3
         with:
           app-name: bookapi
-          deployment-token: ${{ secrets.TSURU_TOKEN_SSE }}
+          deployment-token: ${{ secrets.IMPAAS_DEPLOY_TOKEN }}
           method: PLATFORM
