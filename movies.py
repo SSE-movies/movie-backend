@@ -34,7 +34,7 @@ def get_movies():
       - per_page (int): default=20
       - title (str): partial match on title (case-insensitive)
       - type (str): exact match on the 'type' column
-      - categories (str): comma-separated list, each substring is matched in 
+      - categories (str): comma-separated list, each substring is matched in
                             'listedIn'
       - release_year (int): exact match on 'releaseYear'
 
@@ -61,8 +61,14 @@ def get_movies():
 
     # Debug to be deleted
     print(
-        "DEBUG: title=", title, " media_type=", media_type, " categories=",
-        categories_str, " release_year=", release_year
+        "DEBUG: title=",
+        title,
+        " media_type=",
+        media_type,
+        " categories=",
+        categories_str,
+        " release_year=",
+        release_year,
     )
 
     # Start building SQL
@@ -86,7 +92,7 @@ def get_movies():
         where_clauses.append("LOWER(type) = LOWER(%s)")
         params.append(media_type)
 
-    # Categories: “Action & Adventure, Documentary” 
+    # Categories: “Action & Adventure, Documentary”
     # → find each substring in "listedIn"
     # We require that *each* category appear as a substring in 'listedIn'
     # (Join them with AND)
@@ -120,26 +126,24 @@ def get_movies():
     # Convert query results to JSON format
     movies_list = []
     for row in rows:
-        movies_list.append({
-            "showId": row[0],
-            "type": row[1],
-            "title": row[2],
-            "director": row[3],
-            "cast": row[4],
-            "country": row[5],
-            "date_added": row[6],
-            "releaseYear": row[7],
-            "rating": row[8],
-            "duration": row[9],
-            "listedIn": row[10],
-            "description": row[11],
-        })
+        movies_list.append(
+            {
+                "showId": row[0],
+                "type": row[1],
+                "title": row[2],
+                "director": row[3],
+                "cast": row[4],
+                "country": row[5],
+                "date_added": row[6],
+                "releaseYear": row[7],
+                "rating": row[8],
+                "duration": row[9],
+                "listedIn": row[10],
+                "description": row[11],
+            }
+        )
 
-    return jsonify({
-        "page": page,
-        "per_page": per_page,
-        "movies": movies_list
-    })
+    return jsonify({"page": page, "per_page": per_page, "movies": movies_list})
 
 
 # Run Flask App
