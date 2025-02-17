@@ -8,7 +8,8 @@ load_dotenv()
 
 # Connect to PostgreSQL
 DATABASE_URL = os.getenv("DATABASE_URL")
-
+# Debug to be deleted
+print("DEBUG: DATABASE_URL =", DATABASE_URL)
 
 def get_db_connection():
     """Creates a new database connection"""
@@ -73,9 +74,9 @@ def get_movies():
         where_clauses.append("title ILIKE %s")
         params.append(f"%{title}%")
 
-    # Type: exact match (whatever strings your DB has, e.g. 'Movie', 'TV Show')
+    # Type: both uppercase and lowercase letters match
     if media_type:
-        where_clauses.append("type = %s")
+        where_clauses.append("LOWER(type) = LOWER(%s)")
         params.append(media_type)
 
     # Categories: “Action & Adventure, Documentary” → find each substring in "listedIn"
@@ -135,5 +136,5 @@ def get_movies():
 
 # Run Flask App
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 80))
+    port = int(os.getenv("PORT", 81))
     app.run(host="0.0.0.0", port=port)
