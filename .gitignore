@@ -4,4 +4,4 @@ venv
 flask_session/
 .env
 .github
-.tsuruignore
+
