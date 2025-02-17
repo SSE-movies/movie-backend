@@ -20,7 +20,7 @@ def home():
     return "Movie API is running!"
 
 
-# ✅ Route: Get movies with pagination
+# Route: Get movies with pagination
 # pagination example: http://127.0.0.1/movies?page=1&per_page=1000
 @app.route("/movies", methods=["GET"])
 def get_movies():
