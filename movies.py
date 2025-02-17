@@ -11,6 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 # Debug to be deleted
 print("DEBUG: DATABASE_URL =", DATABASE_URL)
 
+
 def get_db_connection():
     """Creates a new database connection"""
     return psycopg2.connect(DATABASE_URL)
@@ -33,11 +34,14 @@ def get_movies():
       - per_page (int): default=20
       - title (str): partial match on title (case-insensitive)
       - type (str): exact match on the 'type' column
-      - categories (str): comma-separated list, each substring is matched in 'listedIn'
+      - categories (str): comma-separated list, each substring is matched in 
+                            'listedIn'
       - release_year (int): exact match on 'releaseYear'
 
     Example usage:
-      GET /movies?page=1&per_page=10&title=Inception&type=Movie&categories=Action,Adventure&release_year=2010
+      GET /movies?
+      page=1&per_page=10&title=Inception&type=Movie&categories=Action,
+      Adventure&release_year=2010
     """
     conn = get_db_connection()
     cur = conn.cursor()
@@ -56,7 +60,10 @@ def get_movies():
     release_year = request.args.get("release_year", default=None, type=int)
 
     # Debug to be deleted
-    print("DEBUG: title=", title, " media_type=", media_type, " categories=", categories_str, " release_year=", release_year)
+    print(
+        "DEBUG: title=", title, " media_type=", media_type, " categories=",
+        categories_str, " release_year=", release_year
+    )
 
     # Start building SQL
     base_sql = """
@@ -79,7 +86,8 @@ def get_movies():
         where_clauses.append("LOWER(type) = LOWER(%s)")
         params.append(media_type)
 
-    # Categories: “Action & Adventure, Documentary” → find each substring in "listedIn"
+    # Categories: “Action & Adventure, Documentary” 
+    # → find each substring in "listedIn"
     # We require that *each* category appear as a substring in 'listedIn'
     # (Join them with AND)
     if categories_str:
