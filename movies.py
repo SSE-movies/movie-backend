@@ -54,6 +54,9 @@ def get_movies():
     categories_str = request.args.get("categories", default=None, type=str)
     release_year = request.args.get("release_year", default=None, type=int)
 
+    # Debug to be deleted
+    print("DEBUG: title=", title, " media_type=", media_type, " categories=", categories_str, " release_year=", release_year)
+
     # Start building SQL
     base_sql = """
         SELECT "showId", type, title, director, "cast", country,
