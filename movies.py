@@ -8,8 +8,6 @@ load_dotenv()
 
 # Connect to PostgreSQL
 DATABASE_URL = os.getenv("DATABASE_URL")
-# Debug to be deleted
-print("DEBUG: DATABASE_URL =", DATABASE_URL)
 
 
 def get_db_connection():
