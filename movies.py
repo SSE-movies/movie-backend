@@ -29,7 +29,7 @@ def get_movies():
 
     Supports optional query parameters:
       - page (int): default=1
-      - per_page (int): default=20
+      - per_page (int): default=100
       - title (str): partial match on title (case-insensitive)
       - type (str): exact match on the 'type' column
       - categories (str): comma-separated list, each substring is matched in
