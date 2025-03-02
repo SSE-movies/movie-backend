@@ -1,10 +1,12 @@
-name: Download Kaggle Data
+name: Download New Kaggle Data
 
 on:
+  schedule:
+    - cron: "0 0 1 * *"  # Runs monthly on the 1st
   workflow_dispatch:
 
 jobs:
-  download-data:
+  sync-netflix-data:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -14,20 +16,25 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install Kaggle
-        run: pip install kaggle
+      - name: Install Python dependencies
+        run: pip install kaggle supabase pandas
 
       - name: Configure Kaggle Credentials
-        # Kaggle CLI reads username/key from environment variables
         env:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         run: |
           mkdir -p ~/.kaggle
           echo "{\"username\":\"$KAGGLE_USERNAME\",\"key\":\"$KAGGLE_KEY\"}" > ~/.kaggle/kaggle.json
-          chmod 600 ~/.kaggle/kaggle.json  # recommended file permissions for security
+          chmod 600 ~/.kaggle/kaggle.json
 
       - name: Download Netflix Shows CSV
         run: |
           kaggle datasets download -d shivamb/netflix-shows --unzip
-          ls -l
+
+      - name: Run sync script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          python sync_script.py
