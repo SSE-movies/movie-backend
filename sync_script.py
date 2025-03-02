@@ -38,7 +38,7 @@ for _, row in new_entries.iterrows():
 # 6. Insert new records (in batches if needed)
 batch_size = 1000
 for i in range(0, len(records_to_insert), batch_size):
-    batch = records_to_insert[i : i + batch_size]
+    batch = records_to_insert[i: i + batch_size]
     supabase.table("movies").insert(batch).execute()
 
 print(f"Inserted {len(records_to_insert)} new rows into 'movies'.")
