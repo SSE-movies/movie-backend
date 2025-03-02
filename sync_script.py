@@ -24,7 +24,11 @@ df = pd.read_csv('netflix_titles.csv')
 df = df.where(pd.notnull(df), None)
 
 # Get existing titles from Supabase
-existing_titles_data = supabase.table("movies").select("title").range(0, 10000).execute()
+existing_titles_data = (supabase.table("movies")
+                        .select("title")
+                        .range(0, 10000)
+                        .execute()
+                        )
 existing_titles = {
     row["title"].strip().lower()
     for row in existing_titles_data.data if row["title"]
