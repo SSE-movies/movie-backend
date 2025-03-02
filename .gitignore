@@ -5,5 +5,3 @@ flask_session/
 .env
 .github
 netflix_titles.csv.zip
-netflix_titles.csv
-
