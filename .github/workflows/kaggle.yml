@@ -1,0 +1,33 @@
+name: Download Kaggle Data
+
+on:
+  workflow_dispatch:
+
+jobs:
+  download-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install Kaggle
+        run: pip install kaggle
+
+      - name: Configure Kaggle Credentials
+        # Kaggle CLI reads username/key from environment variables
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+        run: |
+          mkdir -p ~/.kaggle
+          echo "{\"username\":\"$KAGGLE_USERNAME\",\"key\":\"$KAGGLE_KEY\"}" > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/kaggle.json  # recommended file permissions for security
+
+      - name: Download Netflix Shows CSV
+        run: |
+          kaggle datasets download -d shivamb/netflix-shows --unzip
+          ls -l
