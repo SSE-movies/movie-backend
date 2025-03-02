@@ -101,12 +101,12 @@ def get_movies():
             if cat:  # only apply if non-empty
                 category_clauses.append('"listedIn" ILIKE %s')
                 params.append(f"%{cat}%")
-        
+
         # After collecting all category_clauses, append once with OR
         if category_clauses:
             # Combine conditions with OR and group them with parentheses
             where_clauses.append("(" + " OR ".join(category_clauses) + ")")
-        
+
     # Combine WHERE clauses with AND
     if where_clauses:
         base_sql += " WHERE " + " AND ".join(where_clauses)
