@@ -25,10 +25,15 @@ df = df.where(pd.notnull(df), None)
 
 # Get existing titles from Supabase
 existing_titles_data = supabase.table("movies").select("title").range(0, 10000).execute()
-existing_titles = {row["title"].strip().lower() for row in existing_titles_data.data if row["title"]}
+existing_titles = {
+    row["title"].strip().lower()
+    for row in existing_titles_data.data if row["title"]
+}
 
 # Normalize the CSV titles as well
-df["normalised_title"] = df["title"].apply(lambda x: x.strip().lower() if x else x)
+df["normalised_title"] = df["title"].apply(
+    lambda x: x.strip().lower() if x else x
+)
 
 # 4. Filter to new entries
 new_entries = df[~df["normalised_title"].isin(existing_titles)]
@@ -43,7 +48,8 @@ for _, row in new_entries.iterrows():
         "cast": row["cast"],
         "country": row["country"],
         "dateAdded": row["date_added"],
-        "releaseYear": None if row["release_year"] is None else int(row["release_year"]),
+        "releaseYear": None if row["release_year"] is None
+        else int(row["release_year"]),
         "duration": row["duration"],
         "listedIn": row["listed_in"],
         "description": row["description"],
