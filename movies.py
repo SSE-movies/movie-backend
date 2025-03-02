@@ -95,24 +95,34 @@ def get_movies():
     # We require that *each* category appear as a substring in 'listedIn'
     # (Join them with AND)
     if categories_str:
+        category_clauses = []
         for cat in categories_str.split(","):
             cat = cat.strip()
             if cat:  # only apply if non-empty
-                where_clauses.append('"listedIn" ILIKE %s')
+                category_clauses.append('"listedIn" ILIKE %s')
                 params.append(f"%{cat}%")
+        
+        # After collecting all category_clauses, append once with OR
+        if category_clauses:
+            # Combine conditions with OR and group them with parentheses
+            where_clauses.append("(" + " OR ".join(category_clauses) + ")")
+        
+    # Combine WHERE clauses with AND
+    if where_clauses:
+        base_sql += " WHERE " + " AND ".join(where_clauses)
 
     # Release year: exact match on the integer column
     if release_year:
         where_clauses.append('"releaseYear" = %s')
         params.append(release_year)
 
-    # Combine WHERE clauses with AND
-    if where_clauses:
-        base_sql += " WHERE " + " AND ".join(where_clauses)
-
     # Finally, add pagination
     base_sql += " LIMIT %s OFFSET %s"
     params.extend([per_page, offset])
+
+    # Debug
+    print("Final SQL:", base_sql)
+    print("Params:", params)
 
     # Execute query
     cur.execute(base_sql, tuple(params))
