@@ -29,7 +29,7 @@ def get_movies():
 
     Supports optional query parameters:
       - page (int): default=1
-      - per_page (int): default=100
+      - per_page (int): default=10
       - title (str): partial match on title (case-insensitive)
       - type (str): exact match on the 'type' column
       - categories (str): comma-separated list, each substring is matched in
@@ -47,7 +47,7 @@ def get_movies():
     # Get query parameters for pagination
     page = request.args.get("page", default=1, type=int)  # Default to page 1
     per_page = request.args.get(
-        "per_page", default=20, type=int
+        "per_page", default=10, type=int
     )  # Default 20 movies per page
     offset = (page - 1) * per_page  # Calculate offset for SQL LIMIT
 
