@@ -56,14 +56,24 @@ except Exception as e:
 df = df.where(pd.notnull(df), None)
 
 # Get existing titles from Supabase, with safe fallback if no data returned
-existing_titles_response = (supabase.table("movies")
-                            .select("title")
-                            .range(0, 10000)
-                            .execute())
-existing_titles_data = existing_titles_response.data or []
-existing_titles = {
-    row["title"].strip().lower() for row in existing_titles_data if row.get("title")
-}
+existing_titles = set()
+page = 0
+page_size = 1000
+
+while True:
+    start = page * page_size
+    end = start + page_size - 1
+    response = (supabase.table("movies")
+                .select("title")
+                .range(start, end)
+                .execute())
+    data = response.data or []
+    if not data:
+        break
+    for row in data:
+        if title := row.get("title"):
+            existing_titles.add(title.strip().lower())
+    page += 1
 
 # Normalize the CSV titles safely (only strip if the value is a string)
 df["normalised_title"] = df["title"].apply(
