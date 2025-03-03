@@ -11,7 +11,7 @@ import time
 def safe_int(value):
     try:
         # Consider empty strings as missing too.
-        return int(value) if value not in (None, '') else None
+        return int(value) if value not in (None, "") else None
     except (ValueError, TypeError):
         return None
 
@@ -31,15 +31,15 @@ if not url or not key:
     )
 
 # Unzip the CSV file if it's not already extracted
-zip_path = 'netflix_titles.csv.zip'
-csv_filename = 'netflix_titles.csv'
+zip_path = "netflix_titles.csv.zip"
+csv_filename = "netflix_titles.csv"
 
 if not os.path.exists(csv_filename):
     if not os.path.exists(zip_path):
         sys.exit(f"Error: Neither {csv_filename} nor {zip_path} were found.")
     try:
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall('.')  # extracts all files into current dir
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            zip_ref.extractall(".")  # extracts all files into current dir
     except zipfile.BadZipFile:
         sys.exit("Error: The zip file is corrupted or not a zip file.")
 
@@ -63,10 +63,9 @@ page_size = 1000
 while True:
     start = page * page_size
     end = start + page_size - 1
-    response = (supabase.table("movies")
-                .select("title")
-                .range(start, end)
-                .execute())
+    response = (
+        supabase.table("movies").select("title").range(start, end).execute()
+    )
     data = response.data or []
     if not data:
         break
@@ -97,7 +96,7 @@ for _, row in new_entries.iterrows():
         "duration": row.get("duration"),
         "listedIn": row.get("listed_in"),
         "description": row.get("description"),
-        "rating": row.get("rating")
+        "rating": row.get("rating"),
     }
     records_to_insert.append(record)
 
@@ -107,7 +106,7 @@ max_retries = 5
 total_inserted = 0
 
 for i in range(0, len(records_to_insert), batch_size):
-    batch = records_to_insert[i: i + batch_size]
+    batch = records_to_insert[i : i + batch_size]
     attempt = 0
     while attempt < max_retries:
         try:
@@ -119,13 +118,15 @@ for i in range(0, len(records_to_insert), batch_size):
             attempt += 1
             print(
                 f"""Error inserting batch starting at index {i},
-                attempt {attempt}: {e}""")
+                attempt {attempt}: {e}"""
+            )
             # Wait a bit longer on each retry (exponential backoff)
-            time.sleep(2 ** attempt)
+            time.sleep(2**attempt)
     else:
         # This block executes if we did not break out of the while loop
         print(
             f"""Failed to insert batch starting at index {i}
-            after {max_retries} attempts.""")
+            after {max_retries} attempts."""
+        )
 
 print(f"Inserted {total_inserted} new rows into 'movies'.")

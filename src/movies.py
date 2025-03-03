@@ -43,17 +43,13 @@ def get_movies_route():
         title=title,
         media_type=media_type,
         categories_str=categories_str,
-        release_year=release_year
+        release_year=release_year,
     )
 
     # Get movies from database
     movies_list = get_movies(params)
 
-    return jsonify({
-        "page": page,
-        "per_page": per_page,
-        "movies": movies_list
-    })
+    return jsonify({"page": page, "per_page": per_page, "movies": movies_list})
 
 
 def run_app():

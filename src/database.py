@@ -9,6 +9,7 @@ from .config import DATABASE_URL
 @dataclass
 class MovieQueryParams:
     """Parameters for movie queries."""
+
     page: int = 1
     per_page: int = 10
     title: Optional[str] = None
@@ -25,10 +26,10 @@ def get_db_connection():
 def get_movies(params: MovieQueryParams) -> List[dict]:
     """
     Get movies from database with optional filters.
-    
+
     Args:
         params: MovieQueryParams object containing query parameters
-        
+
     Returns:
         List of movie dictionaries
     """

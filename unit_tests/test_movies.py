@@ -1,5 +1,6 @@
 import pytest
 from src.movies import app
+
 # import os
 from dotenv import load_dotenv
 
@@ -84,7 +85,8 @@ def test_get_movies_with_release_year_filter(client):
 def test_get_movies_with_multiple_filters(client):
     """Test getting movies with multiple filters"""
     response = client.get(
-        "/movies?title=Inception&type=Movie&release_year=2010")
+        "/movies?title=Inception&type=Movie&release_year=2010"
+    )
     assert response.status_code == 200
     data = response.get_json()
     assert all(
