@@ -90,7 +90,7 @@ def get_movies():
         where_clauses.append("LOWER(type) = LOWER(%s)")
         params.append(media_type)
 
-    # Categories: “Action & Adventure, Documentary”
+    # Categories: "Action & Adventure, Documentary"
     # → find each substring in "listedIn"
     # We require that *each* category appear as a substring in 'listedIn'
     # (Join them with AND)
@@ -107,14 +107,14 @@ def get_movies():
             # Combine conditions with OR and group them with parentheses
             where_clauses.append("(" + " OR ".join(category_clauses) + ")")
 
-    # Combine WHERE clauses with AND
-    if where_clauses:
-        base_sql += " WHERE " + " AND ".join(where_clauses)
-
     # Release year: exact match on the integer column
     if release_year:
         where_clauses.append('"releaseYear" = %s')
         params.append(release_year)
+
+    # Combine WHERE clauses with AND
+    if where_clauses:
+        base_sql += " WHERE " + " AND ".join(where_clauses)
 
     # Finally, add pagination
     base_sql += " LIMIT %s OFFSET %s"
