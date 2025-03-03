@@ -39,7 +39,7 @@ if not os.path.exists(csv_filename):
         sys.exit(f"Error: Neither {csv_filename} nor {zip_path} were found.")
     try:
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall('.')  # extracts all files into current directory
+            zip_ref.extractall('.')  # extracts all files into current dir
     except zipfile.BadZipFile:
         sys.exit("Error: The zip file is corrupted or not a zip file.")
 
@@ -83,7 +83,7 @@ df["normalised_title"] = df["title"].apply(
 # Filter to new entries that are not already in Supabase
 new_entries = df[~df["normalised_title"].isin(existing_titles)]
 
-# Prepare records for insertion with safe conversion for numbers and missing fields
+# Prepare records for insertion with safe conversion for nums & missing fields
 records_to_insert = []
 for _, row in new_entries.iterrows():
     record = {
@@ -117,12 +117,15 @@ for i in range(0, len(records_to_insert), batch_size):
             break  # exit the retry loop if the insert is successful
         except Exception as e:
             attempt += 1
-            print(f"Error inserting batch starting at index {i}, attempt {attempt}: {e}")
+            print(
+                f"""Error inserting batch starting at index {i}, 
+                attempt {attempt}: {e}""")
             # Wait a bit longer on each retry (exponential backoff)
             time.sleep(2 ** attempt)
     else:
         # This block executes if we did not break out of the while loop
-        print(f"Failed to insert batch starting at index {i} after {max_retries} attempts.")
+        print(
+            f"""Failed to insert batch starting at index {i} 
+            after {max_retries} attempts.""")
 
 print(f"Inserted {total_inserted} new rows into 'movies'.")
-
