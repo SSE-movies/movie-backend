@@ -1,3 +1,5 @@
+"""Configuration settings for the Movie Backend API."""
+
 import os
 from dotenv import load_dotenv
 
@@ -8,4 +10,5 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # API configuration
-PORT = int(os.getenv("PORT", 80))
+PORT = os.getenv("PORT", "80")
+PORT = int(PORT)

@@ -1,22 +1,42 @@
+"""Database operations for the Movie Backend API."""
+
+from dataclasses import dataclass
+from typing import List, Optional
 import psycopg2
 from .config import DATABASE_URL
 
 
+@dataclass
+class MovieQueryParams:
+    """Parameters for movie queries."""
+    page: int = 1
+    per_page: int = 10
+    title: Optional[str] = None
+    media_type: Optional[str] = None
+    categories_str: Optional[str] = None
+    release_year: Optional[int] = None
+
+
 def get_db_connection():
-    """Creates a new database connection"""
+    """Creates a new database connection."""
     return psycopg2.connect(DATABASE_URL)
 
 
-def get_movies(page=1, per_page=10, title=None, media_type=None,
-               categories_str=None, release_year=None):
+def get_movies(params: MovieQueryParams) -> List[dict]:
     """
-    Get movies from database with optional filters
+    Get movies from database with optional filters.
+    
+    Args:
+        params: MovieQueryParams object containing query parameters
+        
+    Returns:
+        List of movie dictionaries
     """
     conn = get_db_connection()
     cur = conn.cursor()
 
     # Calculate offset for SQL LIMIT
-    offset = (page - 1) * per_page
+    offset = (params.page - 1) * params.per_page
 
     # Start building SQL
     base_sql = """
@@ -27,34 +47,34 @@ def get_movies(page=1, per_page=10, title=None, media_type=None,
     """
 
     where_clauses = []
-    params = []
+    query_params = []
 
     # Build WHERE clauses
-    if title:
+    if params.title:
         where_clauses.append("title ILIKE %s")
-        params.append(f"%{title}%")
+        query_params.append(f"%{params.title}%")
 
     # Type: both uppercase and lowercase letters match
-    if media_type:
+    if params.media_type:
         where_clauses.append("LOWER(type) = LOWER(%s)")
-        params.append(media_type)
+        query_params.append(params.media_type)
 
     # Categories: "Action & Adventure, Documentary"
-    if categories_str:
+    if params.categories_str:
         category_clauses = []
-        for cat in categories_str.split(","):
+        for cat in params.categories_str.split(","):
             cat = cat.strip()
             if cat:  # only apply if non-empty
                 category_clauses.append('"listedIn" ILIKE %s')
-                params.append(f"%{cat}%")
+                query_params.append(f"%{cat}%")
 
         if category_clauses:
             where_clauses.append("(" + " OR ".join(category_clauses) + ")")
 
     # Release year: exact match on the integer column
-    if release_year:
+    if params.release_year:
         where_clauses.append('"releaseYear" = %s')
-        params.append(release_year)
+        query_params.append(params.release_year)
 
     # Combine WHERE clauses with AND
     if where_clauses:
@@ -62,10 +82,10 @@ def get_movies(page=1, per_page=10, title=None, media_type=None,
 
     # Finally, add pagination
     base_sql += " LIMIT %s OFFSET %s"
-    params.extend([per_page, offset])
+    query_params.extend([params.per_page, offset])
 
     # Execute query
-    cur.execute(base_sql, tuple(params))
+    cur.execute(base_sql, tuple(query_params))
     rows = cur.fetchall()
 
     cur.close()

@@ -1,5 +1,7 @@
+"""Flask routes for the Movie Backend API."""
+
 from flask import Flask, jsonify, request
-from .database import get_movies
+from .database import get_movies, MovieQueryParams
 from .config import PORT
 
 app = Flask(__name__)
@@ -7,6 +9,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
+    """Return a simple message indicating the API is running."""
     return "Movie API is running!"
 
 
@@ -20,8 +23,7 @@ def get_movies_route():
       - per_page (int): default=10
       - title (str): partial match on title (case-insensitive)
       - type (str): exact match on the 'type' column
-      - categories (str): comma-separated list, each substring is matched
-                          in 'listedIn'
+      - categories (str): comma-separated list, each substring is matched in 'listedIn'
       - release_year (int): exact match on 'releaseYear'
     """
     # Get query parameters for pagination
@@ -34,8 +36,8 @@ def get_movies_route():
     categories_str = request.args.get("categories", default=None, type=str)
     release_year = request.args.get("release_year", default=None, type=int)
 
-    # Get movies from database
-    movies_list = get_movies(
+    # Create query parameters object
+    params = MovieQueryParams(
         page=page,
         per_page=per_page,
         title=title,
@@ -43,6 +45,9 @@ def get_movies_route():
         categories_str=categories_str,
         release_year=release_year
     )
+
+    # Get movies from database
+    movies_list = get_movies(params)
 
     return jsonify({
         "page": page,
@@ -52,5 +57,5 @@ def get_movies_route():
 
 
 def run_app():
-    """Run the Flask application"""
+    """Run the Flask application."""
     app.run(host="0.0.0.0", port=PORT)
