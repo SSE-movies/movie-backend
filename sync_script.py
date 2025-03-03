@@ -3,67 +3,116 @@ from dotenv import load_dotenv
 import zipfile
 import os
 from supabase import create_client, Client
+import sys
+import time
+
+
+# Helper function to safely convert values to integer
+def safe_int(value):
+    try:
+        # Consider empty strings as missing too.
+        return int(value) if value not in (None, '') else None
+    except (ValueError, TypeError):
+        return None
+
 
 # Load environment variables
 load_dotenv()
 
+# Validate required environment variables
+url = os.getenv("SUPABASE_URL")
+key = os.getenv("SUPABASE_KEY")
+if not url or not key:
+    sys.exit(
+        """
+        Error: SUPABASE_URL and/or SUPABASE_KEY 
+        environment variables are missing.
+        """
+    )
+
 # Unzip the CSV file if it's not already extracted
 zip_path = 'netflix_titles.csv.zip'
 csv_filename = 'netflix_titles.csv'
+
 if not os.path.exists(csv_filename):
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        zip_ref.extractall('.')  # extracts all files into current directory
+    if not os.path.exists(zip_path):
+        sys.exit(f"Error: Neither {csv_filename} nor {zip_path} were found.")
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall('.')  # extracts all files into current directory
+    except zipfile.BadZipFile:
+        sys.exit("Error: The zip file is corrupted or not a zip file.")
 
 # Connect to Supabase
-url = os.environ["SUPABASE_URL"]
-key = os.environ["SUPABASE_KEY"]
 supabase: Client = create_client(url, key)
 
-# Read the CSV
-df = pd.read_csv('netflix_titles.csv')
+# Read the CSV file safely
+try:
+    df = pd.read_csv(csv_filename)
+except Exception as e:
+    sys.exit(f"Error reading CSV file: {e}")
+
+# Replace missing values with None
 df = df.where(pd.notnull(df), None)
 
-# Get existing titles from Supabase
-existing_titles_data = (supabase.table("movies")
-                        .select("title")
-                        .range(0, 10000)
-                        .execute()
-                        )
+# Get existing titles from Supabase, with safe fallback if no data returned
+existing_titles_response = (supabase.table("movies")
+                            .select("title")
+                            .range(0, 10000)
+                            .execute())
+existing_titles_data = existing_titles_response.data or []
 existing_titles = {
-    row["title"].strip().lower()
-    for row in existing_titles_data.data if row["title"]
+    row["title"].strip().lower() for row in existing_titles_data if row.get("title")
 }
 
-# Normalize the CSV titles as well
+# Normalize the CSV titles safely (only strip if the value is a string)
 df["normalised_title"] = df["title"].apply(
-    lambda x: x.strip().lower() if x else x
+    lambda x: x.strip().lower() if isinstance(x, str) else None
 )
 
-# 4. Filter to new entries
+# Filter to new entries that are not already in Supabase
 new_entries = df[~df["normalised_title"].isin(existing_titles)]
 
-# 5. Prepare records for insertion
+# Prepare records for insertion with safe conversion for numbers and missing fields
 records_to_insert = []
 for _, row in new_entries.iterrows():
-    records_to_insert.append({
-        "type": row["type"],
-        "title": row["title"],
-        "director": row["director"],
-        "cast": row["cast"],
-        "country": row["country"],
-        "dateAdded": row["date_added"],
-        "releaseYear": None if row["release_year"] is None
-        else int(row["release_year"]),
-        "duration": row["duration"],
-        "listedIn": row["listed_in"],
-        "description": row["description"],
-        "rating": row["rating"]
-    })
+    record = {
+        "type": row.get("type"),
+        "title": row.get("title"),
+        "director": row.get("director"),
+        "cast": row.get("cast"),
+        "country": row.get("country"),
+        "dateAdded": row.get("date_added"),
+        "releaseYear": safe_int(row.get("release_year")),
+        "duration": row.get("duration"),
+        "listedIn": row.get("listed_in"),
+        "description": row.get("description"),
+        "rating": row.get("rating")
+    }
+    records_to_insert.append(record)
 
-# 6. Insert new records (in batches if needed)
+# Insert new records in batches (handling potential insertion errors)
 batch_size = 1000
+max_retries = 5
+total_inserted = 0
+
 for i in range(0, len(records_to_insert), batch_size):
     batch = records_to_insert[i: i + batch_size]
-    supabase.table("movies").insert(batch).execute()
+    attempt = 0
+    while attempt < max_retries:
+        try:
+            supabase.table("movies").insert(batch).execute()
+            total_inserted += len(batch)
+            print(f"Successfully inserted batch starting at index {i}")
+            break  # exit the retry loop if the insert is successful
+        except Exception as e:
+            attempt += 1
+            print(f"Error inserting batch starting at index {i}, attempt {attempt}: {e}")
+            # Wait a bit longer on each retry (exponential backoff)
+            time.sleep(2 ** attempt)
+    else:
+        # This block executes if we did not break out of the while loop
+        print(f"Failed to insert batch starting at index {i} after {max_retries} attempts.")
 
-print(f"Inserted {len(records_to_insert)} new rows into 'movies'.")
+print(f"Inserted {total_inserted} new rows into 'movies'.")
+
