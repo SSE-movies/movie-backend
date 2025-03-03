@@ -10,11 +10,12 @@ COPY requirements.txt /movie-backend/
 # Install required dependencies
 RUN pip install --no-cache-dir -r /movie-backend/requirements.txt
 
-# Copy the rest of the application files
-COPY movies.py /movie-backend/
+# Copy the application files
+COPY src/ /movie-backend/src/
+COPY app.py /movie-backend/
 
 # Expose port 80
 EXPOSE 80
 
-# Define the command to run the application correctly
-CMD ["python", "movies.py"]
+# Define the command to run the application
+CMD ["python", "app.py"]
