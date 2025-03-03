@@ -25,7 +25,7 @@ key = os.getenv("SUPABASE_KEY")
 if not url or not key:
     sys.exit(
         """
-        Error: SUPABASE_URL and/or SUPABASE_KEY 
+        Error: SUPABASE_URL and/or SUPABASE_KEY
         environment variables are missing.
         """
     )
@@ -118,14 +118,14 @@ for i in range(0, len(records_to_insert), batch_size):
         except Exception as e:
             attempt += 1
             print(
-                f"""Error inserting batch starting at index {i}, 
+                f"""Error inserting batch starting at index {i},
                 attempt {attempt}: {e}""")
             # Wait a bit longer on each retry (exponential backoff)
             time.sleep(2 ** attempt)
     else:
         # This block executes if we did not break out of the while loop
         print(
-            f"""Failed to insert batch starting at index {i} 
+            f"""Failed to insert batch starting at index {i}
             after {max_retries} attempts.""")
 
 print(f"Inserted {total_inserted} new rows into 'movies'.")
