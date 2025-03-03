@@ -1,11 +1,14 @@
 import psycopg2
 from .config import DATABASE_URL
 
+
 def get_db_connection():
     """Creates a new database connection"""
     return psycopg2.connect(DATABASE_URL)
 
-def get_movies(page=1, per_page=10, title=None, media_type=None, categories_str=None, release_year=None):
+
+def get_movies(page=1, per_page=10, title=None, media_type=None,
+               categories_str=None, release_year=None):
     """
     Get movies from database with optional filters
     """
@@ -88,4 +91,4 @@ def get_movies(page=1, per_page=10, title=None, media_type=None, categories_str=
             }
         )
 
-    return movies_list 
+    return movies_list

@@ -4,9 +4,11 @@ from .config import PORT
 
 app = Flask(__name__)
 
+
 @app.route("/")
 def home():
     return "Movie API is running!"
+
 
 @app.route("/movies", methods=["GET"])
 def get_movies_route():
@@ -18,7 +20,8 @@ def get_movies_route():
       - per_page (int): default=10
       - title (str): partial match on title (case-insensitive)
       - type (str): exact match on the 'type' column
-      - categories (str): comma-separated list, each substring is matched in 'listedIn'
+      - categories (str): comma-separated list, each substring is matched
+                          in 'listedIn'
       - release_year (int): exact match on 'releaseYear'
     """
     # Get query parameters for pagination
@@ -47,6 +50,7 @@ def get_movies_route():
         "movies": movies_list
     })
 
+
 def run_app():
     """Run the Flask application"""
-    app.run(host="0.0.0.0", port=PORT) 
+    app.run(host="0.0.0.0", port=PORT)
