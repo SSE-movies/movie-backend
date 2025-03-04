@@ -15,7 +15,7 @@ COPY src/ /movie-backend/src/
 COPY app.py /movie-backend/
 
 # Expose port 80
-EXPOSE 80
+EXPOSE 5000
 
 # Define the command to run the application
 CMD ["python", "app.py"]
