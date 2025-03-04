@@ -10,5 +10,5 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # API configuration
-PORT = os.getenv("PORT", "80")
+PORT = os.getenv("PORT", "5000")
 PORT = int(PORT)

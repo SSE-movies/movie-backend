@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r /movie-backend/requirements.txt
 COPY src/ /movie-backend/src/
 COPY app.py /movie-backend/
 
-# Expose port 80
+# Expose port 5000
 EXPOSE 5000
 
 # Define the command to run the application
