@@ -115,7 +115,7 @@ jobs:
           docker push $IMAGE_NAME
 
   deploy-azure-container-app-testing:
-    needs: build-docker-image-testing
+    needs: [setup, build-docker-image-testing]
     runs-on: ubuntu-latest
 
     steps:
