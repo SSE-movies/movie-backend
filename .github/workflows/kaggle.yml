@@ -2,7 +2,7 @@ name: Download New Kaggle Data
 
 on:
   schedule:
-    - cron: "1 * * * *"  # Runs monthly on the 1st
+    - cron: "* * * * *"  # Runs monthly on the 1st
   workflow_dispatch:
 
 jobs:
