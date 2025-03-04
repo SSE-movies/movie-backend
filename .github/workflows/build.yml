@@ -78,16 +78,16 @@ jobs:
 
       - name: Generate timestamp tag
         run: |
-          IMAGE_TAG=$(date +'%Y%m%d-%H%M')  # Generates a timestamp tag
+          echo "IMAGE_TAG=$(date +'%Y%m%d-%H%M')" >> $GITHUB_ENV
       
       - name: Build Docker Image
         run: |
-          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-testing:$IMAGE_TAG
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-testing:${{ env.IMAGE_TAG }}
           docker build -t $IMAGE_NAME .
 
       - name: Push Docker Image to GHCR
         run: |
-          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-testing:$IMAGE_TAG
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-testing:${{ env.IMAGE_TAG }}
           docker push $IMAGE_NAME
   
   build-docker-image-production:
@@ -104,12 +104,12 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-production:$IMAGE_TAG
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-production:${{ env.IMAGE_TAG }}
           docker build -t $IMAGE_NAME .
 
       - name: Push Docker Image to GHCR
         run: |
-          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-production:$IMAGE_TAG
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-production:${{ env.IMAGE_TAG }}
           docker push $IMAGE_NAME
 
   deploy-azure-container-app-testing:
@@ -130,7 +130,7 @@ jobs:
           az containerapp update \
             --name movie-backend-testing \
             --resource-group SSE-movies \
-            --image ghcr.io/sse-movies/movie-backend-testing:$IMAGE_TAG \
+            --image ghcr.io/sse-movies/movie-backend-testing:${{ env.IMAGE_TAG }} \
 
       - name: Azure Logout
         run: az logout
