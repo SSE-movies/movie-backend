@@ -64,46 +64,69 @@ jobs:
       #     export PYTHONPATH=$PYTHONPATH:$(pwd)/..
       #     pytest test_movies.py --cov=src --cov-report=xml
 
-  # build-docker-image:
-  #   needs: quality-checks
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
+  build-docker-image-testing:
+    needs: quality-checks
+    runs-on: ubuntu-latest
 
-  #     - name: Log in to GitHub Container Registry
-  #       run: |
-  #         echo "${{ secrets.ORG_GHCR_TOKEN }}" | docker login ghcr.io --username "oosborgschmitz" --password-stdin
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-  #     - name: Build Docker Image
-  #       run: |
-  #         IMAGE_NAME=ghcr.io/sse-movies/movie-backend:latest
-  #         docker build -t $IMAGE_NAME .
+      - name: Log in to GitHub Container Registry
+        run: |
+          echo "${{ secrets.ORG_GHCR_TOKEN }}" | docker login ghcr.io --username "oosborgschmitz" --password-stdin
 
-  #     - name: Push Docker Image to GHCR
-  #       run: |
-  #         IMAGE_NAME=ghcr.io/sse-movies/movie-backend:latest
-  #         docker push $IMAGE_NAME
+      - name: Build Docker Image
+        run: |
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-testing:latest
+          docker build -t $IMAGE_NAME .
+
+      - name: Push Docker Image to GHCR
+        run: |
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-testing:latest
+          docker push $IMAGE_NAME
   
-  # deploy-azure-container-app:
-  #   needs: build-docker-image
-  #   runs-on: ubuntu-latest
+  build-docker-image-production:
+    needs: quality-checks
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v4
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-  #     - name: Azure Login
-  #       uses: azure/login@v1
-  #       with:
-  #         creds: ${{ secrets.MOVIEBACKEND_AZURE_CREDENTIALS }}
+      - name: Log in to GitHub Container Registry
+        run: |
+          echo "${{ secrets.ORG_GHCR_TOKEN }}" | docker login ghcr.io --username "oosborgschmitz" --password-stdin
 
-  #     - name: Deploy to Azure Container App
-  #       run: |
-  #         az containerapp update \
-  #           --name movie-backend \
-  #           --resource-group SSE-movies \
-  #           --image ghcr.io/sse-movies/movie-backend:latest
+      - name: Build Docker Image
+        run: |
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-production:latest
+          docker build -t $IMAGE_NAME .
 
-  #     - name: Azure Logout
-  #       run: az logout
+      - name: Push Docker Image to GHCR
+        run: |
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-production:latest
+          docker push $IMAGE_NAME
+
+  deploy-azure-container-app-testing:
+    needs: build-docker-image-testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.MOVIEBACKENDTESTING_AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Container App
+        run: |
+          az containerapp update \
+            --name movie-backend-testing \
+            --resource-group SSE-movies \
+            --image ghcr.io/sse-movies/movie-backend-testing:latest \
+
+      - name: Azure Logout
+        run: az logout
