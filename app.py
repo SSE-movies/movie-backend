@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     logger.info("Starting application...")
-    logger.info(f"PORT: {os.getenv('PORT', '80')}")
+    logger.info(f"PORT: {os.getenv('PORT', '5000')}")
     logger.info(
         f"DATABASE_URL: {'set' if os.getenv('DATABASE_URL') else 'not set'}"
     )
