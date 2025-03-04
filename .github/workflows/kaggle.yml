@@ -17,7 +17,7 @@ jobs:
           python-version: '3.9'
 
       - name: Install Python dependencies
-        run: pip install kaggle supabase pandas
+        run: pip install kaggle supabase pandas python-dotenv
 
       - name: Configure Kaggle Credentials
         env:
