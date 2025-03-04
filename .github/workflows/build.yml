@@ -132,7 +132,7 @@ jobs:
           az containerapp update \
             --name movie-backend-testing \
             --resource-group SSE-movies \
-            --image ghcr.io/sse-movies/movie-backend-testing:${{ needs.setup.outputs.image_tag }} \
+            --image ghcr.io/sse-movies/movie-backend-testing:${{ needs.setup.outputs.image_tag }}
 
       - name: Azure Logout
         run: az logout
