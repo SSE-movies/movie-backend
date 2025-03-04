@@ -7,6 +7,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set Image Tag
+        id: set_tag
+        run: |
+          echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
       - name: Setup Environment
         run: |
           export FLASK_APP=app.py
@@ -75,19 +79,15 @@ jobs:
       - name: Log in to GitHub Container Registry
         run: |
           echo "${{ secrets.ORG_GHCR_TOKEN }}" | docker login ghcr.io --username "oosborgschmitz" --password-stdin
-
-      - name: Generate timestamp tag
-        run: |
-          echo "IMAGE_TAG=$(date +'%Y%m%d-%H%M')" >> $GITHUB_ENV
       
       - name: Build Docker Image
         run: |
-          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-testing:${{ env.IMAGE_TAG }}
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-testing:${{ needs.setup.outputs.tag }}
           docker build -t $IMAGE_NAME .
 
       - name: Push Docker Image to GHCR
         run: |
-          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-testing:${{ env.IMAGE_TAG }}
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-testing:${{ needs.setup.outputs.tag }}
           docker push $IMAGE_NAME
   
   build-docker-image-production:
@@ -104,12 +104,12 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-production:${{ env.IMAGE_TAG }}
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-production:${{ needs.setup.outputs.tag }}
           docker build -t $IMAGE_NAME .
 
       - name: Push Docker Image to GHCR
         run: |
-          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-production:${{ env.IMAGE_TAG }}
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-production:${{ needs.setup.outputs.tag }}
           docker push $IMAGE_NAME
 
   deploy-azure-container-app-testing:
@@ -130,7 +130,7 @@ jobs:
           az containerapp update \
             --name movie-backend-testing \
             --resource-group SSE-movies \
-            --image ghcr.io/sse-movies/movie-backend-testing:${{ env.IMAGE_TAG }} \
+            --image ghcr.io/sse-movies/movie-backend-testing:${{ needs.setup.outputs.tag }} \
 
       - name: Azure Logout
         run: az logout
