@@ -4,6 +4,8 @@ on: [push]
 jobs:
   setup:
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.set_tag.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -82,12 +84,12 @@ jobs:
       
       - name: Build Docker Image
         run: |
-          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-testing:${{ needs.setup.outputs.tag }}
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-testing:${{ needs.setup.outputs.image_tag }}
           docker build -t $IMAGE_NAME .
 
       - name: Push Docker Image to GHCR
         run: |
-          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-testing:${{ needs.setup.outputs.tag }}
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-testing:${{ needs.setup.outputs.image_tag }}
           docker push $IMAGE_NAME
   
   build-docker-image-production:
@@ -104,12 +106,12 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-production:${{ needs.setup.outputs.tag }}
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-production:${{ needs.setup.outputs.image_tag }}
           docker build -t $IMAGE_NAME .
 
       - name: Push Docker Image to GHCR
         run: |
-          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-production:${{ needs.setup.outputs.tag }}
+          IMAGE_NAME=ghcr.io/sse-movies/movie-backend-production:${{ needs.setup.outputs.image_tag }}
           docker push $IMAGE_NAME
 
   deploy-azure-container-app-testing:
@@ -130,7 +132,7 @@ jobs:
           az containerapp update \
             --name movie-backend-testing \
             --resource-group SSE-movies \
-            --image ghcr.io/sse-movies/movie-backend-testing:${{ needs.setup.outputs.tag }} \
+            --image ghcr.io/sse-movies/movie-backend-testing:${{ needs.setup.outputs.image_tag }} \
 
       - name: Azure Logout
         run: az logout
