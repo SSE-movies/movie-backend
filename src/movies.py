@@ -10,7 +10,7 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     """Return a simple message indicating the API is running."""
-    return "Movie API is running! 6"
+    return "Movie API is running! 7"
 
 
 @app.route("/movies", methods=["GET"])
