@@ -69,7 +69,7 @@ jobs:
       #     pytest test_movies.py --cov=src --cov-report=xml
 
   build-docker-image-testing:
-    needs: quality-checks
+    needs: [setup, quality-checks]
     runs-on: ubuntu-latest
 
     steps:
@@ -91,7 +91,7 @@ jobs:
           docker push $IMAGE_NAME
   
   build-docker-image-production:
-    needs: quality-checks
+    needs: [setup, quality-checks]
     runs-on: ubuntu-latest
 
     steps:
