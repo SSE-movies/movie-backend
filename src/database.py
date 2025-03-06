@@ -113,3 +113,47 @@ def get_movies(params: MovieQueryParams) -> List[dict]:
         )
 
     return movies_list
+
+
+def get_movie_by_id(movie_id: str) -> Optional[dict]:
+    """
+    Retrieve a specific movie from the database by its showId.
+
+    Args:
+        movie_id (str): The unique identifier of the movie.
+
+    Returns:
+        A dictionary containing the movie's details if found, or None if the movie does not exist.
+    """
+    conn = get_db_connection()
+    cur = conn.cursor()
+    query = """
+        SELECT "showId", type, title, director, "cast", country,
+               "dateAdded", "releaseYear", rating, duration,
+               "listedIn", description
+        FROM movies
+        WHERE "showId" = %s
+    """
+    cur.execute(query, (movie_id,))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if row:
+        return {
+            "showId": row[0],
+            "type": row[1],
+            "title": row[2],
+            "director": row[3],
+            "cast": row[4],
+            "country": row[5],
+            "date_added": row[6],
+            "releaseYear": row[7],
+            "rating": row[8],
+            "duration": row[9],
+            "listedIn": row[10],
+            "description": row[11],
+        }
+    else:
+        return None
+

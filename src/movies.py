@@ -52,6 +52,40 @@ def get_movies_route():
     return jsonify({"page": page, "per_page": per_page, "movies": movies_list})
 
 
+@app.route("/movies/<movie_id>", methods=["GET"])
+def get_movie_by_id_route(movie_id):
+    """
+    GET /movies/<movie_id>
+
+    Retrieve detailed information for a specific movie identified by its unique showId.
+
+    Args:
+        movie_id (str): The unique identifier for the movie to retrieve.
+
+    Returns:
+        A JSON response containing the movie's details, including:
+            - showId: Unique movie identifier.
+            - type: Movie type.
+            - title: Movie title.
+            - director: Director's name.
+            - cast: Main cast.
+            - country: Country of production.
+            - date_added: Date the movie was added.
+            - releaseYear: Year of release.
+            - rating: Movie rating.
+            - duration: Movie duration.
+            - listedIn: Categories or genres.
+            - description: Movie description.
+        If the movie is not found, returns a JSON response with an error message and a 404 status code.
+    """
+    # Call the helper function from database.py (assume you've defined it there)
+    movie = get_movie_by_id(movie_id)
+    if movie:
+        return jsonify(movie)
+    else:
+        return jsonify({"error": "Movie not found"}), 404
+
+
 def run_app():
     """Run the Flask application."""
     app.run(host="0.0.0.0", port=PORT)
