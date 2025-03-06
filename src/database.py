@@ -156,4 +156,3 @@ def get_movie_by_id(movie_id: str) -> Optional[dict]:
         }
     else:
         return None
-
