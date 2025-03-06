@@ -154,5 +154,5 @@ def get_movie_by_id(movie_id: str) -> Optional[dict]:
             "listedIn": row[10],
             "description": row[11],
         }
-    else:
-        return None
+
+    return None
