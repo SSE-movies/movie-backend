@@ -76,8 +76,8 @@ def get_movie_by_id_route(movie_id):
             - duration: Movie duration.
             - listedIn: Categories or genres.
             - description: Movie description.
-            
-        If the movie is not found, returns a JSON response 
+
+        If the movie is not found, returns a JSON response
         with an error message and a 404 status code.
     """
     # Call the helper function from database.py (assume you've defined it there)
