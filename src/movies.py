@@ -1,7 +1,7 @@
 """Flask routes for the Movie Backend API."""
 
 from flask import Flask, jsonify, request
-from .database import get_movies, MovieQueryParams
+from .database import get_movies, MovieQueryParams, get_movie_by_id
 from .config import PORT
 
 app = Flask(__name__)
