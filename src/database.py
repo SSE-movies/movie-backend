@@ -23,7 +23,7 @@ def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
 
 
-def get_movies(params: MovieQueryParams) -> List[dict]:
+def get_movies(params: MovieQueryParams) -> tuple[List[dict], int]:
     """
     Get movies from database with optional filters.
 
@@ -31,88 +31,91 @@ def get_movies(params: MovieQueryParams) -> List[dict]:
         params: MovieQueryParams object containing query parameters
 
     Returns:
-        List of movie dictionaries
+        Tuple of (List of movie dictionaries, total count)
     """
     conn = get_db_connection()
     cur = conn.cursor()
 
-    # Calculate offset for SQL LIMIT
-    offset = (params.page - 1) * params.per_page
-
-    # Start building SQL
-    base_sql = """
-        SELECT "showId", type, title, director, "cast", country,
-               "dateAdded", "releaseYear", rating, duration,
-               "listedIn", description
+    # Build base SQL for counting total results
+    count_sql = """
+        SELECT COUNT(*)
         FROM movies
     """
-
+    
+    # Build WHERE clauses (reuse existing code from lines 50-82)
     where_clauses = []
     query_params = []
 
-    # Build WHERE clauses
+    # Add filters (reuse existing code)
     if params.title:
         where_clauses.append("title ILIKE %s")
         query_params.append(f"%{params.title}%")
 
-    # Type: both uppercase and lowercase letters match
     if params.media_type:
         where_clauses.append("LOWER(type) = LOWER(%s)")
         query_params.append(params.media_type)
 
-    # Categories: "Action & Adventure, Documentary"
     if params.categories_str:
         category_clauses = []
         for cat in params.categories_str.split(","):
             cat = cat.strip()
-            if cat:  # only apply if non-empty
+            if cat:
                 category_clauses.append('"listedIn" ILIKE %s')
                 query_params.append(f"%{cat}%")
 
         if category_clauses:
             where_clauses.append("(" + " OR ".join(category_clauses) + ")")
 
-    # Release year: exact match on the integer column
     if params.release_year:
         where_clauses.append('"releaseYear" = %s')
         query_params.append(params.release_year)
 
-    # Combine WHERE clauses with AND
+    # Add WHERE clauses to count query if needed
+    if where_clauses:
+        count_sql += " WHERE " + " AND ".join(where_clauses)
+
+    # Get total count
+    cur.execute(count_sql, tuple(query_params))
+    total_count = cur.fetchone()[0]
+
+    # Execute main query (reuse existing code from lines 84-113)
+    base_sql = """
+        SELECT "showId", type, title, director, "cast", country,
+               "dateAdded", "releaseYear", rating, duration,
+               "listedIn", description
+        FROM movies
+    """
+    
     if where_clauses:
         base_sql += " WHERE " + " AND ".join(where_clauses)
 
-    # Finally, add pagination
     base_sql += " LIMIT %s OFFSET %s"
-    query_params.extend([params.per_page, offset])
+    query_params.extend([params.per_page, (params.page - 1) * params.per_page])
 
-    # Execute query
     cur.execute(base_sql, tuple(query_params))
     rows = cur.fetchall()
+
+    movies_list = []
+    for row in rows:
+        movies_list.append({
+            "showId": row[0],
+            "type": row[1],
+            "title": row[2],
+            "director": row[3],
+            "cast": row[4],
+            "country": row[5],
+            "date_added": row[6],
+            "releaseYear": row[7],
+            "rating": row[8],
+            "duration": row[9],
+            "listedIn": row[10],
+            "description": row[11],
+        })
 
     cur.close()
     conn.close()
 
-    # Convert query results to JSON format
-    movies_list = []
-    for row in rows:
-        movies_list.append(
-            {
-                "showId": row[0],
-                "type": row[1],
-                "title": row[2],
-                "director": row[3],
-                "cast": row[4],
-                "country": row[5],
-                "date_added": row[6],
-                "releaseYear": row[7],
-                "rating": row[8],
-                "duration": row[9],
-                "listedIn": row[10],
-                "description": row[11],
-            }
-        )
-
-    return movies_list
+    return movies_list, total_count
 
 
 def get_movie_by_id(movie_id: str) -> Optional[dict]:
