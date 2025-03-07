@@ -41,7 +41,7 @@ def get_movies_route():
         page=page,
         per_page=per_page,
         title=title,
-        media_type=media_type,
+        media_type=media_type.strip(),
         categories_str=categories_str,
         release_year=release_year,
     )
