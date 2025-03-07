@@ -48,9 +48,20 @@ def test_movie_object_structure(client):
     data = response.get_json()
     if len(data["movies"]) > 0:
         movie = data["movies"][0]
-        required_fields = ["showId", "type", "title", "director", "cast", 
-                         "country", "date_added", "releaseYear", "rating", 
-                         "duration", "listedIn", "description"]
+        required_fields = [
+            "showId",
+            "type",
+            "title",
+            "director",
+            "cast",
+            "country",
+            "date_added",
+            "releaseYear",
+            "rating",
+            "duration",
+            "listedIn",
+            "description",
+        ]
         for field in required_fields:
             assert field in movie
 
@@ -61,7 +72,7 @@ def test_filter_params_accepted(client):
         "title": "test",
         "type": "Movie",
         "categories": "Drama",
-        "release_year": "2020"
+        "release_year": "2020",
     }
     response = client.get("/movies", query_string=params)
     assert response.status_code == 200
@@ -69,7 +80,9 @@ def test_filter_params_accepted(client):
 
 def test_empty_response_structure(client):
     """Test response structure when no results found"""
-    response = client.get("/movies?title=ThisMovieDefinitelyDoesNotExist123456789")
+    response = client.get(
+        "/movies?title=ThisMovieDefinitelyDoesNotExist123456789"
+    )
     data = response.get_json()
     assert response.status_code == 200
     assert "movies" in data
@@ -103,7 +116,9 @@ def test_get_movies_with_type_filter(client):
     assert response.status_code == 200
     data = response.get_json()
     if len(data["movies"]) > 0:
-        assert all(movie["type"].lower() == "movie" for movie in data["movies"])
+        assert all(
+            movie["type"].lower() == "movie" for movie in data["movies"]
+        )
 
 
 def test_get_movies_with_categories_filter(client):
@@ -112,9 +127,11 @@ def test_get_movies_with_categories_filter(client):
     assert response.status_code == 200
     data = response.get_json()
     if len(data["movies"]) > 0:
-        assert any("action" in movie["listedIn"].lower() 
-                  or "adventure" in movie["listedIn"].lower() 
-                  for movie in data["movies"])
+        assert any(
+            "action" in movie["listedIn"].lower()
+            or "adventure" in movie["listedIn"].lower()
+            for movie in data["movies"]
+        )
 
 
 def test_get_movies_with_release_year_filter(client):
@@ -169,7 +186,9 @@ def test_pagination_metadata(client):
 
 def test_filter_with_no_results(client):
     """Test filtering with criteria that should return no results"""
-    response = client.get("/movies?title=ThisMovieDefinitelyDoesNotExist123456789")
+    response = client.get(
+        "/movies?title=ThisMovieDefinitelyDoesNotExist123456789"
+    )
     data = response.get_json()
     assert response.status_code == 200
     assert len(data["movies"]) == 0

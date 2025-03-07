@@ -97,20 +97,22 @@ def get_movies(params: MovieQueryParams) -> tuple[List[dict], int]:
 
     movies_list = []
     for row in rows:
-        movies_list.append({
-            "showId": row[0],
-            "type": row[1],
-            "title": row[2],
-            "director": row[3],
-            "cast": row[4],
-            "country": row[5],
-            "date_added": row[6],
-            "releaseYear": row[7],
-            "rating": row[8],
-            "duration": row[9],
-            "listedIn": row[10],
-            "description": row[11],
-        })
+        movies_list.append(
+            {
+                "showId": row[0],
+                "type": row[1],
+                "title": row[2],
+                "director": row[3],
+                "cast": row[4],
+                "country": row[5],
+                "date_added": row[6],
+                "releaseYear": row[7],
+                "rating": row[8],
+                "duration": row[9],
+                "listedIn": row[10],
+                "description": row[11],
+            }
+        )
 
     cur.close()
     conn.close()

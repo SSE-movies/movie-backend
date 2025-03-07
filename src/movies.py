@@ -54,12 +54,14 @@ def get_movies_route():
     # Get movies and total count from database
     movies_list, total = get_movies(params)
 
-    return jsonify({
-        "page": page,
-        "per_page": per_page,
-        "total": total,
-        "movies": movies_list
-    })
+    return jsonify(
+        {
+            "page": page,
+            "per_page": per_page,
+            "total": total,
+            "movies": movies_list,
+        }
+    )
 
 
 @app.route("/movies/<movie_id>", methods=["GET"])
