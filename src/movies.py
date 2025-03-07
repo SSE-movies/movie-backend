@@ -64,6 +64,16 @@ def get_movies_route():
 
 @app.route("/movies/<movie_id>", methods=["GET"])
 def get_movie_by_id_route(movie_id):
+    """
+    Get a specific movie by its ID.
+
+    Args:
+        movie_id (str): The unique identifier of the movie
+
+    Returns:
+        JSON response containing the movie details if found,
+        or an error message if not found
+    """
     movie = get_movie_by_id(movie_id)
 
     if movie:

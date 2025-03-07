@@ -41,7 +41,7 @@ def get_movies(params: MovieQueryParams) -> tuple[List[dict], int]:
         SELECT COUNT(*)
         FROM movies
     """
-    
+
     # Build WHERE clauses (reuse existing code from lines 50-82)
     where_clauses = []
     query_params = []
@@ -85,7 +85,7 @@ def get_movies(params: MovieQueryParams) -> tuple[List[dict], int]:
                "listedIn", description
         FROM movies
     """
-    
+
     if where_clauses:
         base_sql += " WHERE " + " AND ".join(where_clauses)
 
